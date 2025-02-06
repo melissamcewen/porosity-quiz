@@ -1,17 +1,17 @@
-// Learn more at developers.reddit.com/docs
 import { Devvit } from '@devvit/public-api';
-import { quizQuestions, Answer } from './quizData.js';
-
+import { questions, Answer, PorosityType, porosityDescription, porosityTips } from './quizData.js';
 Devvit.configure({
   redditAPI: true,
 });
+
+
 
 interface Scores {
   high: number;
   low: number;
   normal: number;
   mixed: number;
-  [key: string]: number; // Add index signature
+  [key: string]: number;
 }
 
 type PageProps = {
@@ -27,7 +27,7 @@ const QuestionPage = ({
   scores,
   setScores,
 }: PageProps) => {
-  const question = quizQuestions[currentQuestion];
+  const question = questions[currentQuestion];
 
   const handleAnswerClick = (answer: Answer) => {
     const newScores = { ...scores };
@@ -37,7 +37,7 @@ const QuestionPage = ({
     if (answer.mixed) newScores.mixed += answer.mixed;
     setScores(newScores);
 
-    if (currentQuestion < quizQuestions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setPage(`q${currentQuestion + 1}`);
     } else {
       setPage('results');
@@ -45,16 +45,23 @@ const QuestionPage = ({
   };
 
   return (
-    <vstack width="100%" height="100%" alignment="middle center" gap="large">
-      <text size="xlarge">{question.question}</text>
-      <vstack gap="medium">
-        {question.answers.map((answer: Answer, index: number) => (
-          <button
-            key={index.toString()}
-            onPress={() => handleAnswerClick(answer)}
-          >
-            {answer.content}
-          </button>
+    <vstack width="100%" height="100%" alignment="top center" gap="large">
+      <hstack height="10%"></hstack>
+      <text size="xlarge" width="90%" wrap>
+        {question.question}
+      </text>
+      <vstack gap="medium" width="90%">
+        {question.answers.map((answer, index) => (
+          <hstack gap="small" alignment="middle center" key={index.toString()}>
+            <button
+              icon="checkmark"
+              appearance="bordered"
+              onPress={() => handleAnswerClick(answer)}
+            ></button>
+            <text width="80%" wrap>
+              {answer.content}
+            </text>
+          </hstack>
         ))}
       </vstack>
     </vstack>
@@ -63,58 +70,61 @@ const QuestionPage = ({
 
 const IntroPage = ({ setPage }: PageProps) => (
   <vstack width="100%" height="100%" alignment="middle center" gap="large">
-    <text size="xxlarge">Hair Porosity Quiz</text>
-    <text>
-      Beep boop! Confused about hair porosity? 🤖 It's like your hair's
-      drinkability! 🥤
+    <text size="xxlarge">💧 Hair Porosity Quiz</text>
+    <text width="80%" wrap>
+      Hair porosity refers to how easily your hair absorbs moisture. Knowing
+      your hair's porosity helps you choose the right products.
     </text>
-    <text>
-      High porosity hair is thirsty, low porosity hair is picky, normal porosity
-      is just right, and mixed porosity is a combination.
-    </text>
-    <text>Let's figure out your hair's personality and porosity level!</text>
-    <button appearance="primary" onPress={() => setPage('q0')}>
+    <button appearance="bordered" onPress={() => setPage('q0')}>
       Start Quiz
     </button>
   </vstack>
 );
 
-const ResultsPage = ({ scores }: PageProps) => {
+const ResultsPage = ({ setPage, scores }: PageProps) => {
   // Find the highest score
-  const entries = Object.entries(scores) as [keyof Scores, number][];
-  const [highestType] = entries.reduce((a, b) => (a[1] > b[1] ? a : b));
+  const entries = Object.entries(scores) as [PorosityType, number][];
+  const [porosity] = entries.reduce((a, b) => (a[1] > b[1] ? a : b));
 
-  let resultText = '';
-  switch (highestType) {
-    case 'high':
-      resultText =
-        'You have high porosity hair! Your hair readily absorbs moisture but may need extra help retaining it.';
-      break;
-    case 'low':
-      resultText =
-        'You have low porosity hair! Your hair is resistant to absorbing moisture but good at retaining it once absorbed.';
-      break;
-    case 'mixed':
-      resultText =
-        'You have mixed porosity hair! Different parts of your hair have different porosity levels.';
-      break;
-    default:
-      resultText =
-        'You have normal porosity hair! Your hair has a good balance of moisture absorption and retention.';
-  }
+  const description = porosityDescription[porosity];
+  const tips = porosityTips[porosity];
 
   return (
-    <vstack width="100%" height="100%" alignment="middle center" gap="large">
-      <text size="xxlarge">Your Results</text>
-      <text size="xlarge">{resultText}</text>
+    <vstack width="100%" height="100%" alignment="middle center" gap="medium">
+      <hstack gap="small" alignment="middle center">
+        <icon name="beta-latest"></icon>{' '}
+        <text size="xxlarge">Your Results</text>
+      </hstack>
+
+      <text size="xlarge">You have {porosity} porosity hair!</text>
+      <text width="90%" wrap size="small">
+        {description}
+      </text>
+      <vstack gap="medium" width="90%">
+        <text size="large" weight="bold">
+          Tips for your hair type:
+        </text>
+        {tips.map((tip: string, index: number) => (
+          <hstack gap="small" alignment="middle center" key={index.toString()}>
+            <icon name="star"></icon>
+            <text width="90%" wrap>
+              {tip}
+            </text>
+          </hstack>
+        ))}
+      </vstack>
+      <button onPress={() => setPage('intro')} appearance="bordered">
+        Start Over
+      </button>
     </vstack>
   );
 };
 
 Devvit.addCustomPostType({
   name: 'Hair Porosity Quiz',
+  height: 'tall',
   render: (context) => {
-    const [page, setPage] = context.useState('intro');
+    const [page, setPage] = context.useState('results');
     const [scores, setScores] = context.useState<Scores>({
       high: 0,
       low: 0,
@@ -153,26 +163,26 @@ Devvit.addCustomPostType({
       );
     }
 
-    return <vstack>{currentPage}</vstack>;
-  },
-});
+    return (
+      <zstack
+        width="100%"
+        height="100%"
+        alignment="middle center"
+        backgroundColor="#521eb3"
+      >
+        <image
+          url="background.png"
+          imageWidth={1344}
+          imageHeight={840}
+          width={100}
+          height={100}
+          resizeMode="cover"
+          description="quiz background"
+        />
 
-// Add a menu item to create the quiz post
-Devvit.addMenuItem({
-  label: 'Create Hair Porosity Quiz',
-  location: 'subreddit',
-  onPress: async (_event, context) => {
-    const subreddit = await context.reddit.getCurrentSubreddit();
-    await context.reddit.submitPost({
-      title: 'Hair Porosity Quiz',
-      subredditName: subreddit.name,
-      preview: (
-        <vstack height="100%" width="100%" alignment="middle center">
-          <text size="large">Loading Quiz...</text>
-        </vstack>
-      ),
-    });
-    context.ui.showToast('Quiz post created!');
+        {currentPage}
+      </zstack>
+    );
   },
 });
 

@@ -1,7 +1,42 @@
+export type PorosityType = 'high' | 'low' | 'normal' | 'mixed';
+
+export const porosityDescription: Record<PorosityType, string> = {
+  high: 'High porosity hair readily absorbs and loses moisture due to a raised or damaged cuticle layer.',
+  low: 'Low porosity hair, with its tightly bound cuticle, resists moisture penetration and is prone to product buildup.',
+  normal:
+    'Normal porosity hair has a healthy cuticle, allowing balanced moisture absorption and retention, making it easier to maintain and style.',
+  mixed:
+    'You have porous ends and healthier roots due to damage or length. You may need to use different products for your ends vs. your scalp',
+};
+
+// Tips for each porosity type
+export const porosityTips: Record<PorosityType, string[]> = {
+  high: [
+    'Use leave-in conditioners and oils to seal in moisture',
+    'Deep condition regularly',
+    'Look for products with moisturizing ingredients',
+  ],
+  low: [
+    'Focus on lightweight, easily absorbed products',
+    'Regular clarifying treatments to remove buildup',
+    'Apply products to damp hair to improve absorption',
+  ],
+  normal: [
+    'Maintain balance with regular conditioning',
+    'Choose products that are balanced, not too heavy or too light',
+    'Deep condition occasionally for maintenance',
+  ],
+  mixed: [
+    'Use lighter products near roots and heavier ones on ends',
+    'Protect the ends with a pre-poo when shampooing or clarifying',
+    'Deep condition focusing on the ends',
+  ],
+};
+
 export interface Answer {
   content: string;
-  low?: number;
   high?: number;
+  low?: number;
   normal?: number;
   mixed?: number;
 }
@@ -11,7 +46,7 @@ export interface Question {
   answers: Answer[];
 }
 
-export const quizQuestions: Question[] = [
+export const questions: Question[] = [
   {
     question: 'Which sounds more like your experience with products:',
     answers: [
