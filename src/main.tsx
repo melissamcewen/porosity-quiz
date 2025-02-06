@@ -58,7 +58,7 @@ const QuestionPage = ({
       </text>
       <vstack gap="medium" width="90%">
         {question.answers.map((answer, index) => (
-          <hstack gap="small" key={index.toString()} alignment="middle center">
+          <hstack gap="small" key={index.toString()} alignment="middle center" grow>
             <button
               icon="checkmark"
               appearance="bordered"
@@ -68,14 +68,8 @@ const QuestionPage = ({
               color="white"
               width="80%"
               wrap={true}
-              size="xsmall"
-              height={
-                answer.content.length > 77
-                  ? '48px'
-                  : answer.content.length > 36
-                  ? '32px'
-                  : undefined
-              }
+              size="small"
+
             >
               {answer.content}
             </text>
@@ -258,9 +252,9 @@ ${description}
           Tips for your hair type:
         </text>
         {tips.map((tip: string, index: number) => (
-          <hstack gap="small" alignment="middle center" key={index.toString()}>
+          <hstack gap="small" alignment="middle center" key={index.toString()} grow>
             <icon color="white" name="star"></icon>
-            <text color="white" width="90%" wrap={true}>
+            <text color="white" size="small" width="90%" wrap={true}>
               {tip}
             </text>
           </hstack>
