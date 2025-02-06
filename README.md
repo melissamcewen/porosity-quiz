@@ -76,7 +76,12 @@ npm run dev
 
 ## Changelog
 
-### Version 0.0.4 (Current)
+### Version 0.0.5 (Current)
+
+- Fixing clipping text on mobile
+
+### Version 0.0.4
+
 - Updated the version since I initially didn't understand how versioning worked 🤦‍♀️
 
 ### Version 0.0.3

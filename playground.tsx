@@ -379,7 +379,7 @@ const ResultsPage = ({ setPage, scores }: PageProps) => {
   return (
     <vstack width="100%" height="100%" alignment="middle center" gap="medium">
       <hstack gap="small" alignment="middle center">
-        <icon name="beta-latest"></icon>{' '}
+        <icon name="star"></icon>{' '}
         <text size="xxlarge">Your Results</text>
       </hstack>
 

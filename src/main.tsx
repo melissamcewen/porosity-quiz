@@ -52,8 +52,8 @@ const QuestionPage = ({
 
   return (
     <vstack width="100%" height="100%" alignment="top center" gap="large">
-      <hstack height="10%"></hstack>
-      <text color="white" size="xlarge" width="90%" wrap>
+      <spacer size="medium" />
+      <text color="white" size="xlarge" width="90%" wrap={true}>
         {question.question}
       </text>
       <vstack gap="medium" width="90%">
@@ -238,7 +238,7 @@ ${description}
       <text size="xlarge" color="white">
         You have {porosity} porosity hair!
       </text>
-      <text color="white" width="90%" wrap size="small">
+      <text color="white" width="90%" wrap={true} size="small">
         {description}
       </text>
       <vstack gap="medium" width="90%">
@@ -248,7 +248,7 @@ ${description}
         {tips.map((tip: string, index: number) => (
           <hstack gap="small" alignment="middle center" key={index.toString()}>
             <icon color="white" name="star"></icon>
-            <text color="white" width="90%" wrap>
+            <text color="white" width="90%" wrap={true}>
               {tip}
             </text>
           </hstack>
