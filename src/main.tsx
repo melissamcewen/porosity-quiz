@@ -32,6 +32,7 @@ const QuestionPage = ({
   currentQuestion,
   scores,
   setScores,
+  context,
 }: PageProps) => {
   const question = questions[currentQuestion];
 
@@ -53,12 +54,17 @@ const QuestionPage = ({
   return (
     <vstack width="100%" height="100%" alignment="top center" gap="large">
       <spacer size="medium" />
-      <text color="white" width="90%" wrap={true}>
+      <text color="white" width="90%" wrap={true} weight="bold">
         {question.question}
       </text>
       <vstack gap="medium" width="90%">
         {question.answers.map((answer, index) => (
-          <hstack gap="small" key={index.toString()} alignment="middle center" grow>
+          <hstack
+            gap="small"
+            key={index.toString()}
+            alignment="middle center"
+            grow
+          >
             <button
               icon="checkmark"
               appearance="bordered"
@@ -68,10 +74,12 @@ const QuestionPage = ({
               color="white"
               width="80%"
               wrap={true}
-              size="small"
-
+              size={
+                (context?.dimensions?.width ?? 500) < 400 ? 'small' : 'medium'
+              }
             >
               {answer.content}
+
             </text>
           </hstack>
         ))}
@@ -334,6 +342,7 @@ Devvit.addCustomPostType({
           scores={scores}
           setScores={setScores}
           currentQuestion={questionNumber}
+          context={context}
         />
       );
     }

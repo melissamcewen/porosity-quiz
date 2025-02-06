@@ -76,7 +76,11 @@ npm run dev
 
 ## Changelog
 
-### Version 0.0.5 (Current)
+### Version 0.0.6 (Current)
+
+- Making quiz text more responsive
+
+### Version 0.0.5
 
 - Fixing clipping text on mobile
 
