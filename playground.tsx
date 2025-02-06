@@ -12,7 +12,7 @@ const porosityDescription: Record<PorosityType, string> = {
   normal:
     'Normal porosity hair has a healthy cuticle, allowing balanced moisture absorption and retention, making it easier to maintain and style.',
   mixed:
-    'Mixed porosity hair, often with porous ends and healthier roots due to damage or length, requires a balanced hair care approach.',
+    'You have porous ends and healthier roots due to damage or length. You may need to use different products for your ends vs. your scalp',
 };
 
 // Tips for each porosity type
@@ -332,13 +332,8 @@ const QuestionPage = ({
   };
 
   return (
-    <vstack
-      width="100%"
-      height="100%"
-      alignment="middle center"
-      gap="large"
-      backgroundColor="#008565"
-    >
+    <vstack width="100%" height="100%" alignment="top center" gap="large">
+      <hstack height="10%"></hstack>
       <text size="xlarge" width="90%" wrap>
         {question.question}
       </text>
@@ -347,7 +342,7 @@ const QuestionPage = ({
           <hstack gap="small" alignment="middle center" key={index.toString()}>
             <button
               icon="checkmark"
-              appearance="primary"
+              appearance="bordered"
               onPress={() => handleAnswerClick(answer)}
             ></button>
             <text width="80%" wrap>
@@ -361,21 +356,13 @@ const QuestionPage = ({
 };
 
 const IntroPage = ({ setPage }: PageProps) => (
-  <vstack
-    width="100%"
-    height="100%"
-    alignment="middle center"
-    gap="large"
-    backgroundColor="#afb7dd"
-  >
-    <text size="xxlarge" color="black">
-      💧 Hair Porosity Quiz
-    </text>
-    <text color="black" width="80%" wrap>
+  <vstack width="100%" height="100%" alignment="middle center" gap="large">
+    <text size="xxlarge">💧 Hair Porosity Quiz</text>
+    <text width="80%" wrap>
       Hair porosity refers to how easily your hair absorbs moisture. Knowing
       your hair's porosity helps you choose the right products.
     </text>
-    <button appearance="primary" onPress={() => setPage('q0')}>
+    <button appearance="bordered" onPress={() => setPage('q0')}>
       Start Quiz
     </button>
   </vstack>
@@ -390,30 +377,32 @@ const ResultsPage = ({ setPage, scores }: PageProps) => {
   const tips = porosityTips[porosity];
 
   return (
-    <vstack
-      width="100%"
-      height="100%"
-      alignment="middle center"
-      gap="small"
-      backgroundColor="#ac245a"
-    >
-      <text size="xxlarge">Your Results</text>
+    <vstack width="100%" height="100%" alignment="middle center" gap="medium">
+      <hstack gap="small" alignment="middle center">
+        <icon name="beta-latest"></icon>{' '}
+        <text size="xxlarge">Your Results</text>
+      </hstack>
+
       <text size="xlarge">You have {porosity} porosity hair!</text>
-      <text width="90%" wrap>
+      <text width="90%" wrap size="small">
         {description}
       </text>
       <vstack gap="medium" width="90%">
-        <text size="large" weight="bold">Tips for your hair type:</text>
+        <text size="large" weight="bold">
+          Tips for your hair type:
+        </text>
         {tips.map((tip: string, index: number) => (
           <hstack gap="small" alignment="middle center" key={index.toString()}>
-            <text>💧</text>
-            <text width="80%" wrap>
+            <icon name="star"></icon>
+            <text width="90%" wrap>
               {tip}
             </text>
           </hstack>
         ))}
       </vstack>
-      <button onPress={() => setPage('intro')}>Start Over</button>
+      <button onPress={() => setPage('intro')} appearance="bordered">
+        Start Over
+      </button>
     </vstack>
   );
 };
@@ -422,7 +411,7 @@ Devvit.addCustomPostType({
   name: 'Hair Porosity Quiz',
   height: 'tall',
   render: (context) => {
-    const [page, setPage] = context.useState('intro');
+    const [page, setPage] = context.useState('results');
     const [scores, setScores] = context.useState<Scores>({
       high: 0,
       low: 0,
@@ -461,7 +450,26 @@ Devvit.addCustomPostType({
       );
     }
 
-    return <blocks>{currentPage}</blocks>;
+    return (
+      <zstack
+        width="100%"
+        height="100%"
+        alignment="middle center"
+        backgroundColor="#521eb3"
+      >
+        <image
+          url="background.png"
+          imageWidth={1344}
+          imageHeight={840}
+          width={100}
+          height={100}
+          resizeMode="cover"
+          description="quiz background"
+        />
+
+        {currentPage}
+      </zstack>
+    );
   },
 });
 
