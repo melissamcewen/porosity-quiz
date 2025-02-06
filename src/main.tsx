@@ -53,18 +53,30 @@ const QuestionPage = ({
   return (
     <vstack width="100%" height="100%" alignment="top center" gap="large">
       <spacer size="medium" />
-      <text color="white" size="xlarge" width="90%" wrap={true}>
+      <text color="white" width="90%" wrap={true}>
         {question.question}
       </text>
       <vstack gap="medium" width="90%">
         {question.answers.map((answer, index) => (
-          <hstack gap="small" alignment="middle center" key={index.toString()}>
+          <hstack gap="small" key={index.toString()} alignment="middle center">
             <button
               icon="checkmark"
               appearance="bordered"
               onPress={() => handleAnswerClick(answer)}
             ></button>
-            <text color="white" width="80%" wrap>
+            <text
+              color="white"
+              width="80%"
+              wrap={true}
+              size="xsmall"
+              height={
+                answer.content.length > 77
+                  ? '48px'
+                  : answer.content.length > 36
+                  ? '32px'
+                  : undefined
+              }
+            >
               {answer.content}
             </text>
           </hstack>

@@ -339,13 +339,14 @@ const QuestionPage = ({
       </text>
       <vstack gap="medium" width="90%">
         {question.answers.map((answer, index) => (
-          <hstack gap="small" alignment="middle center" key={index.toString()}>
+          <hstack gap="small" key={index.toString()}>
             <button
               icon="checkmark"
               appearance="bordered"
               onPress={() => handleAnswerClick(answer)}
+              size="small"
             ></button>
-            <text width="80%" wrap>
+            <text width="80%" wrap={true} size="xsmall" height="30px">
               {answer.content}
             </text>
           </hstack>
@@ -379,8 +380,7 @@ const ResultsPage = ({ setPage, scores }: PageProps) => {
   return (
     <vstack width="100%" height="100%" alignment="middle center" gap="medium">
       <hstack gap="small" alignment="middle center">
-        <icon name="star"></icon>{' '}
-        <text size="xxlarge">Your Results</text>
+        <icon name="star"></icon> <text size="xxlarge">Your Results</text>
       </hstack>
 
       <text size="xlarge">You have {porosity} porosity hair!</text>
