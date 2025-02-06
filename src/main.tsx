@@ -1,10 +1,15 @@
 import { Devvit } from '@devvit/public-api';
-import { questions, Answer, PorosityType, porosityDescription, porosityTips } from './quizData.js';
+import {
+  questions,
+  Answer,
+  PorosityType,
+  porosityDescription,
+  porosityTips,
+} from './quizData.js';
+
 Devvit.configure({
   redditAPI: true,
 });
-
-
 
 interface Scores {
   high: number;
@@ -19,6 +24,7 @@ type PageProps = {
   currentQuestion: number;
   scores: Scores;
   setScores: (scores: Scores) => void;
+  context?: Devvit.Context;
 };
 
 const QuestionPage = ({
@@ -47,7 +53,7 @@ const QuestionPage = ({
   return (
     <vstack width="100%" height="100%" alignment="top center" gap="large">
       <hstack height="10%"></hstack>
-      <text size="xlarge" width="90%" wrap>
+      <text color="white" size="xlarge" width="90%" wrap>
         {question.question}
       </text>
       <vstack gap="medium" width="90%">
@@ -58,7 +64,7 @@ const QuestionPage = ({
               appearance="bordered"
               onPress={() => handleAnswerClick(answer)}
             ></button>
-            <text width="80%" wrap>
+            <text color="white" width="80%" wrap>
               {answer.content}
             </text>
           </hstack>
@@ -70,8 +76,13 @@ const QuestionPage = ({
 
 const IntroPage = ({ setPage }: PageProps) => (
   <vstack width="100%" height="100%" alignment="middle center" gap="large">
-    <text size="xxlarge">💧 Hair Porosity Quiz</text>
-    <text width="80%" wrap>
+    <hstack gap="small" alignment="middle center">
+      <icon color="white" name="poll-post"></icon>
+      <text size="xxlarge" color="white">
+        Hair Porosity Quiz
+      </text>
+    </hstack>
+    <text width="80%" wrap color="white">
       Hair porosity refers to how easily your hair absorbs moisture. Knowing
       your hair's porosity helps you choose the right products.
     </text>
@@ -81,7 +92,107 @@ const IntroPage = ({ setPage }: PageProps) => (
   </vstack>
 );
 
-const ResultsPage = ({ setPage, scores }: PageProps) => {
+function ShareConfirmation(props: {
+  closeConfirmationModal: () => void;
+  onConfirmation: () => Promise<void>;
+  isLoading: boolean;
+}): JSX.Element {
+  return (
+    <vstack
+      width="100%"
+      height="100%"
+      backgroundColor="#00000099"
+      alignment="center middle"
+    >
+      <vstack
+        maxWidth="300px"
+        padding="medium"
+        backgroundColor="neutral-background-weak"
+        cornerRadius="large"
+      >
+        <hstack alignment="middle start" width="100%" grow>
+          <icon name="warning" color="neutral-content-strong" />
+          <spacer size="medium" />
+          <text grow wrap width="100%">
+            Share your hair porosity results as a comment?
+          </text>
+        </hstack>
+        <spacer size="small" />
+        <hstack alignment="end middle">
+          <button
+            appearance="bordered"
+            onPress={props.closeConfirmationModal}
+            disabled={props.isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            appearance="bordered"
+            onPress={props.onConfirmation}
+            disabled={props.isLoading}
+          >
+            Share
+          </button>
+        </hstack>
+      </vstack>
+    </vstack>
+  );
+}
+
+function ShareSuccess(props: {
+  closeSuccess: () => void;
+  onViewClick: () => void;
+}): JSX.Element {
+  return (
+    <vstack
+      width="100%"
+      height="100%"
+      backgroundColor="#00000099"
+      alignment="center middle"
+    >
+      <vstack
+        maxWidth="300px"
+        padding="medium"
+        backgroundColor="#0E8A00"
+        cornerRadius="large"
+      >
+        <hstack alignment="middle start" width="100%" grow>
+          <icon name="checkmark" color="white" />
+          <spacer size="medium" />
+          <text grow wrap width="100%" color="white">
+            Your results have been shared in the comments!
+          </text>
+        </hstack>
+        <spacer size="small" />
+        <hstack alignment="end middle">
+          <button appearance="success" onPress={props.closeSuccess}>
+            Close
+          </button>
+          <button appearance="success" onPress={props.onViewClick}>
+            View Comment
+          </button>
+        </hstack>
+      </vstack>
+    </vstack>
+  );
+}
+
+const ResultsPage = ({ setPage, scores, context }: PageProps) => {
+  if (!context) {
+    return (
+      <vstack width="100%" height="100%" alignment="middle center">
+        <text>Loading...</text>
+      </vstack>
+    );
+  }
+
+  const [isConfirmationVisible, setIsConfirmationVisible] =
+    context.useState(false);
+  const [isSuccessVisible, setIsSuccessVisible] = context.useState(false);
+  const [latestCommentLink, setLatestCommentLink] = context.useState<
+    string | null
+  >(null);
+
   // Find the highest score
   const entries = Object.entries(scores) as [PorosityType, number][];
   const [porosity] = entries.reduce((a, b) => (a[1] > b[1] ? a : b));
@@ -89,34 +200,91 @@ const ResultsPage = ({ setPage, scores }: PageProps) => {
   const description = porosityDescription[porosity];
   const tips = porosityTips[porosity];
 
-  return (
+  const shareResults = async () => {
+    const comment = await context.reddit.submitComment({
+      id: context.postId!,
+      text: `My Hair Porosity Quiz Results:
+
+🌟 I have ${porosity} porosity hair!
+
+${description}
+`,
+    });
+
+    const link = new URL(
+      comment.permalink,
+      'https://www.reddit.com',
+    ).toString();
+    setLatestCommentLink(link);
+    setIsConfirmationVisible(false);
+    setIsSuccessVisible(true);
+  };
+
+  const openComment = (): void => {
+    if (!latestCommentLink) return;
+    context.ui.navigateTo(latestCommentLink);
+    setIsSuccessVisible(false);
+  };
+
+  const mainContent = (
     <vstack width="100%" height="100%" alignment="middle center" gap="medium">
       <hstack gap="small" alignment="middle center">
-        <icon name="beta-latest"></icon>{' '}
-        <text size="xxlarge">Your Results</text>
+        <icon color="white" name="award"></icon>
+        <text size="xxlarge" color="white">
+          Your Results
+        </text>
       </hstack>
 
-      <text size="xlarge">You have {porosity} porosity hair!</text>
-      <text width="90%" wrap size="small">
+      <text size="xlarge" color="white">
+        You have {porosity} porosity hair!
+      </text>
+      <text color="white" width="90%" wrap size="small">
         {description}
       </text>
       <vstack gap="medium" width="90%">
-        <text size="large" weight="bold">
+        <text size="large" color="white" weight="bold">
           Tips for your hair type:
         </text>
         {tips.map((tip: string, index: number) => (
           <hstack gap="small" alignment="middle center" key={index.toString()}>
-            <icon name="star"></icon>
-            <text width="90%" wrap>
+            <icon color="white" name="star"></icon>
+            <text color="white" width="90%" wrap>
               {tip}
             </text>
           </hstack>
         ))}
       </vstack>
-      <button onPress={() => setPage('intro')} appearance="bordered">
-        Start Over
-      </button>
+      <hstack gap="medium">
+        <button onPress={() => setPage('intro')} appearance="bordered">
+          Start Over
+        </button>
+        <button
+          onPress={() => setIsConfirmationVisible(true)}
+          appearance="bordered"
+        >
+          Share Results
+        </button>
+      </hstack>
     </vstack>
+  );
+
+  return (
+    <zstack width="100%" height="100%" alignment="middle center">
+      {!isConfirmationVisible && !isSuccessVisible && mainContent}
+      {isConfirmationVisible && (
+        <ShareConfirmation
+          closeConfirmationModal={() => setIsConfirmationVisible(false)}
+          onConfirmation={shareResults}
+          isLoading={false}
+        />
+      )}
+      {isSuccessVisible && (
+        <ShareSuccess
+          closeSuccess={() => setIsSuccessVisible(false)}
+          onViewClick={openComment}
+        />
+      )}
+    </zstack>
   );
 };
 
@@ -124,7 +292,7 @@ Devvit.addCustomPostType({
   name: 'Hair Porosity Quiz',
   height: 'tall',
   render: (context) => {
-    const [page, setPage] = context.useState('results');
+    const [page, setPage] = context.useState('intro');
     const [scores, setScores] = context.useState<Scores>({
       high: 0,
       low: 0,
@@ -149,6 +317,7 @@ Devvit.addCustomPostType({
           scores={scores}
           setScores={setScores}
           currentQuestion={0}
+          context={context}
         />
       );
     } else {
@@ -179,10 +348,28 @@ Devvit.addCustomPostType({
           resizeMode="cover"
           description="quiz background"
         />
-
         {currentPage}
       </zstack>
     );
+  },
+});
+
+// Add menu item to create the quiz
+Devvit.addMenuItem({
+  label: 'Create Hair Porosity Quiz',
+  location: 'subreddit',
+  onPress: async (_event, context) => {
+    const subreddit = await context.reddit.getCurrentSubreddit();
+    await context.reddit.submitPost({
+      title: 'Hair Porosity Quiz',
+      subredditName: subreddit.name,
+      preview: (
+        <vstack height="100%" width="100%" alignment="middle center">
+          <text size="large">Loading Hair Porosity Quiz...</text>
+        </vstack>
+      ),
+    });
+    context.ui.showToast('Quiz post created!');
   },
 });
 
